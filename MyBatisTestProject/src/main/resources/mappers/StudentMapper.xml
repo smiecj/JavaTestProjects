@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.mapper.StudentMapper">
+    <resultMap id="StudentResultMap" type="dao.model.Student">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <id column="name" property="name" jdbcType="VARCHAR" />
+        <id column="grade" property="grade" jdbcType="INTEGER" />
+        <id column="class_id" property="classId" jdbcType="BIGINT" />
+        <id column="extend_content" property="extendContent" jdbcType="LONGVARCHAR" />
+    </resultMap>
+
+    <sql id="baseFields">
+        id, name, grade, class_id, extend_content
+    </sql>
+
+    <select id="getStudentsByPrimaryKey" resultType="dao.model.Student" >
+        SELECT <include refid="baseFields" /> FROM Student where id = #{id}
+    </select>
+
+</mapper>

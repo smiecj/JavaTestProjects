@@ -13,6 +13,6 @@ public class Student {
 
     private long classId;
 
-    private String extendParam;
+    private String extendContent;
 
 }
