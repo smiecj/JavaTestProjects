@@ -50,5 +50,7 @@ public class HelloWorldController {
             dataSource.setUrl("jdbc:mysql://192.168.99.100:30026/school?allowMultiQueries=true");
         }
         dataSource.restart();
+
+        return null;
     }
 }
