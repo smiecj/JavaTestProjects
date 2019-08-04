@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.alibaba.druid.pool.DruidDataSource;
 import dao.mapper.StudentMapper;
 import dao.model.Student;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,8 @@ public class HelloWorldController {
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
 
+    private Logger logger = LoggerFactory.getLogger(HelloWorldController.class);
+
     @GetMapping("/hello-world")
     @ResponseBody
     public Greeting sayHello(@RequestParam(name="name", required=false, defaultValue="Stranger") String name) {
@@ -43,14 +47,20 @@ public class HelloWorldController {
     @GetMapping(value = "/datasourcechange")
     @ResponseBody
     public Student testChangeDataSource() throws SQLException {
+        logger.info("[testChangeDataSource] 开始切换数据源！");
+        dataSource.restart();
         if (dataSource.getUrl().contains("localhost")) {
             dataSource.setUrl("jdbc:mysql://192.168.99.100:30026/school?allowMultiQueries=true");
+            dataSource.setUsername("root");
+            dataSource.setPassword("lifeng_mysql%123");
         }
         else {
-            dataSource.setUrl("jdbc:mysql://192.168.99.100:30026/school?allowMultiQueries=true");
+            dataSource.setUrl("jdbc:mysql://localhost:3307/school?allowMultiQueries=true");
+            dataSource.setUsername("root");
+            dataSource.setPassword("shuaifeng123");
         }
-        dataSource.restart();
-
+        dataSource.init();
+        logger.info("[testChangeDataSource] 切换数据源完成！");
         return null;
     }
 }
