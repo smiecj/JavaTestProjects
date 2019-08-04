@@ -7,7 +7,7 @@
 二、切换数据源的时候必须执行restart(init 设置为false) 之后才能执行init，中间如果有请求过来怎么办？
 ---> 可以在前段尝试加锁处理，让请求排队等待之类的
 
-三、切换到本地数据源的时候报错
+三、切换到本地数据源的时候报错 -- 解决
 2019-08-04 18:34:27.150 [Druid-ConnectionPool-Create-159219383] ERROR com.alibaba.druid.pool.DruidDataSource - create connection error, url: jdbc:mysql://localhost:3307/school?allowMultiQueries=true, errorCode 0, state 01S00
 java.sql.SQLException: The server time zone value '�й���׼ʱ��' is unrecognized or represents more than one time zone. You must configure either the server or JDBC driver (via the serverTimezone configuration property) to use a more specifc time zone value if you want to utilize time zone support.
 	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:129)
@@ -47,3 +47,5 @@ Caused by: com.mysql.cj.exceptions.InvalidConnectionAttributeException: The serv
 2019-08-04T09:46:20.991698Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
 2019-08-04T09:46:21.031338Z 0 [System] [MY-010931] [Server] D:\Program Files\MySQL\mysql-8.0.17-winx64\bin\mysqld.exe: ready for connections. Version: '8.0.17'  socket: ''  port: 3307  MySQL Community Server - GPL.
 2019-08-04T09:46:21.251996Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060
+
+五、分库分表
