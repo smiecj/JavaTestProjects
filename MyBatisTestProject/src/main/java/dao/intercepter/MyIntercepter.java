@@ -36,8 +36,6 @@ public class MyIntercepter implements Interceptor {
         BoundSql boundSQL = (BoundSql) metaStatementHandler.getValue("delegate.boundSql");
         String originSQL = (String) metaStatementHandler.getValue("delegate.boundSql.sql");
 
-
-
         return result;
     }
 
