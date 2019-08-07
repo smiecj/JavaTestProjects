@@ -1,3 +1,12 @@
+需求概述
+实现一个可在学校范围内查询学生资料的一套系统
+
+第一阶段：只考虑功能
+实现分库分表、节点上线和监控（切到SpringCloud）、接口层用WebFlux做Netty和异步处理
+
+第二阶段：考虑性能
+针对一些恶意的请求，在前台做缓存，或者是流量限制处理
+
 针对项目中的一些实现方式，还有其他的一些问题
 
 
@@ -49,3 +58,7 @@ Caused by: com.mysql.cj.exceptions.InvalidConnectionAttributeException: The serv
 2019-08-04T09:46:21.251996Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060
 
 五、分库分表
+
+
+六、当前一些问题的记录
+1、数据源切换：即使新的数据源连接不上，也能切换成功
