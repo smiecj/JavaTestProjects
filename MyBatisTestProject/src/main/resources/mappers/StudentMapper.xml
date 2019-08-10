@@ -1,21 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="dao.mapper.StudentMapper">
-    <resultMap id="StudentResultMap" type="dao.model.Student">
-        <id column="id" property="id" jdbcType="BIGINT" />
-        <id column="name" property="name" jdbcType="VARCHAR" />
+<mapper namespace="com.lifeng.school.dao.mapper.StudentMapper">
+    <resultMap id="StudentResultMap" type="com.lifeng.school.dao.model.Student">
+        <id column="student_id" property="id" jdbcType="BIGINT" />
+        <id column="student_name" property="name" jdbcType="VARCHAR" />
         <id column="grade" property="grade" jdbcType="INTEGER" />
         <id column="class_id" property="classId" jdbcType="BIGINT" />
+        <id column="class_name" property="className" jdbcType="VARCHAR" />
         <id column="extend_content" property="extendContent" jdbcType="LONGVARCHAR" />
     </resultMap>
 
     <sql id="baseFields">
-        id, name, grade, class_id, extend_content
+        id student_id, name student_name, grade, class_id, extend_content
     </sql>
 
-    <select id="getStudentsByPrimaryKey" resultType="dao.model.Student" >
+    <sql id="studentClassJoinFields">
+        stu.id student_id, stu.name student_name, stu.grade grade,
+        cls.id class_id, cls.name class_name
+    </sql>
+
+    <select id="getStudentsByPrimaryKey" resultType="com.lifeng.school.dao.model.Student" >
         SELECT <include refid="baseFields" /> FROM Student where id = #{id}
+    </select>
+
+    <!-- 通过班级id、名称等信息，查询所有的学生 -->
+    <!-- 后续这种接口需要做成分页的 -->
+    <select id="getAllStudentsByClassInfo" parameterType="java.util.Map" resultType="com.lifeng.school.dao.model.Student" >
+        SELECT <include refid="studentClassJoinFields" /> FROM
+        Class cls LEFT JOIN Student Stu on Cls.id = Stu.class_id
+        <trim prefix="WHERE" suffix="AND">
+            <if test="params.classId != null">
+                cls.id = #{params.classId,jdbcType=BIGINT}
+            </if>
+            <if test="params.className != null">
+                cls.name = #{params.className,jdbcType=VARCHAR}
+            </if>
+        </trim>
     </select>
 
 </mapper>

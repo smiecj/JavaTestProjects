@@ -1,4 +1,4 @@
-package hello;
+package com.lifeng.school.controller;
 
 public class Greeting {
 

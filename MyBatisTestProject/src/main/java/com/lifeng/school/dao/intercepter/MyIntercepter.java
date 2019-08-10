@@ -1,4 +1,4 @@
-package dao.intercepter;
+package com.lifeng.school.dao.intercepter;
 
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
@@ -7,6 +7,7 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.reflection.MetaObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.sql.Connection;
@@ -30,6 +31,8 @@ public class MyIntercepter implements Interceptor {
 
     private static Logger logger = LoggerFactory.getLogger(MyIntercepter.class);
 
+    @Autowired
+    private PrimaryKeySharder primaryKeySharder;
 
     private Properties myProperties;
 
@@ -53,6 +56,16 @@ public class MyIntercepter implements Interceptor {
 
             if (sharder != null) {
                 // 这里进行分表的相关操作
+                String tableName = sharder.tableName();
+                String shardBy = sharder.shardBy();
+                String shardStrategy = sharder.shardType();
+
+                // 对于不同类型的传参需要分开处理
+
+
+//                primaryKeySharder.getHashKey(tableName)
+
+
                 logger.info("[MyIntercepter] 分表完成！");
             }
         }

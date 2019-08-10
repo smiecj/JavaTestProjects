@@ -1,5 +1,6 @@
-package dao.model;
+package com.lifeng.school.dao.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data

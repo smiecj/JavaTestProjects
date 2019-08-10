@@ -32,7 +32,7 @@
         <property name="mapperLocations" value="classpath:mappers/*.xml" />
         <property name="plugins">
             <array>
-                <bean id="MyIntercepter" class="dao.intercepter.MyIntercepter" />
+                <bean id="MyIntercepter" class="com.lifeng.school.dao.intercepter.MyIntercepter" />
             </array>
         </property>
     </bean>
