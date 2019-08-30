@@ -1,0 +1,36 @@
+    @Test
+    public void testBuffer() {
+        int bufferSize = 10;
+        int bufferBound = 20;
+        int[] intArr = new int[10];
+
+        IntBuffer buffer = IntBuffer.allocate(bufferSize);
+
+        for (int index = 0; index < bufferSize; index++) {
+            int currentRandomInt = new SecureRandom().nextInt(bufferBound);
+            buffer.put(currentRandomInt);
+        }
+
+        buffer.flip();
+
+        while (buffer.hasRemaining()) {
+            int currentInt = buffer.get();
+            System.out.println(currentInt);
+        }
+    }
+
+    @Test
+    public void testFileChannel() throws IOException {
+        FileInputStream fileInputStream = new FileInputStream("pom.xml");
+        FileChannel fileChannel = fileInputStream.getChannel();
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+        fileChannel.read(byteBuffer);
+        byteBuffer.flip();
+
+        StringBuilder sb = new StringBuilder(1024);
+        while (byteBuffer.hasRemaining()) {
+            sb.append((char)byteBuffer.get());
+        }
+        System.out.println(sb.toString());
+    }
