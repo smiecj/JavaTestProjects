@@ -1,7 +1,9 @@
 package com.lifeng.school.controller.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
 
 /**
  * @Author shuaifeng
@@ -10,8 +12,10 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@Builder()
 public class SQLOrderObject {
 
+    @Singular
     int start;
 
     int limit;
