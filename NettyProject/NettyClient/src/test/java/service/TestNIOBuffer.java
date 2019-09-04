@@ -150,4 +150,84 @@ public class TestNIOBuffer {
         }
     }
 
+        // 测试代码：开启5个socket 连接，用一个selector 统一进行处理
+    // 这个示例肯定是需要用event 事件来唤醒的
+    // 扩展：不同的端口用不同的buffer 来读取数据，基本就把一个客户端给实现了
+    @Test
+    public void testMultiConnection() throws Exception {
+        int[] ports = new int[] {8081, 8082, 8083, 8084, 8085};
+
+        Selector selector = Selector.open();
+
+        for (int port : ports) {
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+            ServerSocket socket = serverSocketChannel.socket();
+            SocketAddress socketAddress = new InetSocketAddress(port);
+            socket.bind(socketAddress);
+
+            ServerSocketChannel channel = socket.getChannel();
+            // 注意一定需要设置
+            channel.configureBlocking(false);
+            channel.register(selector, SelectionKey.OP_ACCEPT);
+        }
+
+        // 初始化ByteBuffer
+        ByteBuffer byteBuffer = ByteBuffer.allocate(16);
+
+        FileOutputStream fileOutputStream = new FileOutputStream("selector.txt");
+        FileChannel fileChannel = fileOutputStream.getChannel();
+
+        // 监听selector 队列的事件
+        while (true) {
+            int selectKeyNums = selector.select();
+            System.out.println(String.format("当前需要处理的key数量为: %d", selectKeyNums));
+
+            Set<SelectionKey> selectKeySet = selector.selectedKeys();
+            Iterator<SelectionKey> iter = selectKeySet.iterator();
+
+            while (iter.hasNext()) {
+                SelectionKey currentKey = iter.next();
+
+                if (currentKey.isAcceptable()) {
+                    // 处理开始连接事件，并重新插入一个新的读事件
+                    ServerSocketChannel serverSocketChannel = (ServerSocketChannel) currentKey.channel();
+                    SocketChannel socketChannel = serverSocketChannel.accept();
+                    socketChannel.configureBlocking(false);
+                    Socket socket = socketChannel.socket();
+
+                   System.out.println(String.format("当前处理的事件为: %s; 处理的socket 对象为: %s; 端口为: %s",
+                           "Accept", socket.toString(), socket.getLocalPort()));
+
+                    socketChannel.register(selector, SelectionKey.OP_READ);
+                }
+                else if (currentKey.isReadable()) {
+                    SocketChannel channel = (SocketChannel) currentKey.channel();
+                    Socket socket = channel.socket();
+
+                    System.out.println(String.format("当前处理的事件为: %s; 处理的socket 对象为: %s; 端口为: %s",
+                            "Read", socket.toString(), socket.getLocalPort()));
+
+                    byteBuffer.clear();
+                    channel.read(byteBuffer);
+
+                    channel.configureBlocking(false);
+                    channel.register(selector, SelectionKey.OP_WRITE);
+                }
+                else if (currentKey.isWritable()) {
+                    SocketChannel channel = (SocketChannel) currentKey.channel();
+                    Socket socket = channel.socket();
+
+                    System.out.println(String.format("当前处理的事件为: %s; 处理的socket 对象为: %s; 端口为: %s",
+                            "Write", socket.toString(), socket.getLocalPort()));
+
+                    byteBuffer.flip();
+                    fileChannel.write(byteBuffer);
+
+                    channel.configureBlocking(false);
+                    channel.register(selector, SelectionKey.OP_READ);
+                }
+                iter.remove();
+            }
+        }
+    }
 }
