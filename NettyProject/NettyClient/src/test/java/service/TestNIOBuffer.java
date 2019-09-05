@@ -230,4 +230,76 @@ public class TestNIOBuffer {
             }
         }
     }
+    
+    // 测试开启单个服务器端口，并将每个客户端接收的信息转发到所有其他的客户端去
+    @Test
+    public void testServerSendMultipleClient() throws IOException {
+        Selector selector = Selector.open();
+        ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+        serverSocketChannel.configureBlocking(false);
+        serverSocketChannel.bind(new InetSocketAddress(8088));
+        serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+        // 保存当前连接到服务端的所有客户端
+        Set<SocketChannel> connectClientSet = new HashSet<>();
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(512);
+
+        while (true) {
+            int readyKeyNum = selector.select();
+
+            System.out.println(String.format("当前需要处理的消息数量为: %d", readyKeyNum));
+
+            Set<SelectionKey> selectionKeysSet = selector.selectedKeys();
+            Iterator<SelectionKey> iter = selectionKeysSet.iterator();
+
+            while (iter.hasNext()) {
+                SelectionKey currentKey = iter.next();
+                if (currentKey.isAcceptable()) {
+                    ServerSocketChannel currentChannel = (ServerSocketChannel) currentKey.channel();
+                    SocketChannel socketChannel = currentChannel.accept();
+                    socketChannel.configureBlocking(false);
+                    Socket socket = socketChannel.socket();
+                    connectClientSet.add(socketChannel);
+
+                    System.out.println(String.format("当前有新的客户端接入，地址信息: %s:%s",
+                            socket.getInetAddress(), socket.getPort()));
+                    socketChannel.register(selector, SelectionKey.OP_READ);
+                }
+                else if (currentKey.isReadable()) {
+                    SocketChannel socketChannel = (SocketChannel) currentKey.channel();
+                    Socket socket = socketChannel.socket();
+                    byteBuffer.clear();
+                    socketChannel.read(byteBuffer);
+                    byteBuffer.flip();
+                    Charset charset = Charset.forName("UTF-8");
+                    // 通过charset 来解析字符串，底层的CharsetDecoder 也是通过for循环，一个个字符来解析的
+                    String readStr = String.valueOf(charset.decode(byteBuffer).array());
+
+                    System.out.println(String.format("当前读取的客户端的输入为: %s; 客户端的信息为: %s:%s",
+                            readStr, socket.getInetAddress(), socket.getPort()));
+
+                    // 然后将消息发送到所有其他的客户端
+                    connectClientSet.forEach(client -> {
+                        try {
+                            if (client != socketChannel) {
+                                byteBuffer.clear();
+                                byteBuffer.put(readStr.getBytes());
+                                byteBuffer.flip();
+                                client.write(byteBuffer);
+                            }
+                        }
+                        catch (IOException e) {
+                            System.out.println(String.format("将数据写入其他客户端的时候出现异常！异常信息: %s",
+                                    Arrays.toString(e.getStackTrace())));
+                        }
+                    });
+
+                    socketChannel.register(selector, SelectionKey.OP_READ);
+                }
+
+                iter.remove();
+            }
+        }
+    }
 }
